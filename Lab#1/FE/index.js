@@ -19,6 +19,10 @@ function fetchEmployees() {
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        deleteButton.addEventListener('click', () => {
+        deleteEmployee(item.id);
+        });
+
         deleteCell.appendChild(deleteButton);
 
         row.appendChild(deleteCell)
@@ -29,11 +33,13 @@ function fetchEmployees() {
     .catch(error => console.error(error))
 }
 
+
 // TODO
 // add event listener to submit button
 
 // TODO
 // add event listener to update button
+
 
 // TODO
 // add event listener to delete button
@@ -43,13 +49,41 @@ function createEmployee (){
   // get data from input field
   // send data to BE
   // call fetchEmployees
+   const name = document.getElementById('name').value;
+
+  if (!name) {
+    alert("Name is required");
+    return;
+  }
+
+  fetch('http://localhost:3000/api/v1/employee', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name })
+  })
+    .then(response => response.json())
+    .then(() => {
+      document.getElementById('name').value = '';
+      fetchEmployees();
+    })
+    .catch(error => console.error(error));
 }
 
 // TODO
-function deleteEmployee (){
+function deleteEmployee (id){
   // get id
   // send id to BE
   // call fetchEmployees
+   fetch(`http://localhost:3000/api/v1/employee/${id}`, {
+    method: 'DELETE'
+  })
+    .then(response => response.json())
+    .then(() => {
+      fetchEmployees();
+    })
+    .catch(error => console.error(error));
 }
 
 // TODO
@@ -57,6 +91,40 @@ function updateEmployee (){
   // get data from input field
   // send data to BE
   // call fetchEmployees
+  const id = document.getElementById('updateId').value;
+  const name = document.getElementById('updateName').value;
+
+  if (!id || !name) {
+    alert("ID and Name are required");
+    return;
+  }
+
+  fetch(`http://localhost:3000/api/v1/employee/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name })
+  })
+    .then(response => response.json())
+    .then(() => {
+      document.getElementById('updateId').value = '';
+      document.getElementById('updateName').value = '';
+      fetchEmployees();
+    })
+    .catch(error => console.error(error));
 }
+document.getElementById('employeeForm')
+  .addEventListener('submit', function(event) {
+    event.preventDefault();
+    createEmployee();
+  });
+
+document.getElementById('updateEmployeeForm')
+  .addEventListener('submit', function(event) {
+    event.preventDefault();
+    updateEmployee();
+  });
 
 fetchEmployees()
+
